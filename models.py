@@ -12,7 +12,7 @@ DIR_OFFSETS = { DIR_STILL: (0,0),
                 DIR_DOWN: (0,-1),
                 DIR_LEFT: (-1,0) }
 class Bomberman:
-    def __init__(self, world, x, y, maze, block_size):
+    def __init__(self, world, x, y, maze, block_size,total_number_bombs):
         self.maze = maze
         self.block_size=block_size
         self.world = world
@@ -22,6 +22,10 @@ class Bomberman:
         self.demand_release_bomb=False
         self.moving=True 
         self.next_direction = DIR_STILL
+        self.bomb_to_realese=None
+        self.bomb_realesed=[]
+        self.demand_explose_bombs=False
+        self.bombs=[Bomb(self.maze,self.world,self) for i in range(total_number_bombs)]
     def get_row(self):
         return (self.y - self.block_size) // self.block_size
     def get_col(self):
@@ -48,6 +52,17 @@ class Bomberman:
                 self.direction = DIR_STILL
  
         self.move(self.direction)
+        if self.demand_release_bomb and len(self.bombs)!=0:
+            self.bomb_to_realese=self.bombs[-1]
+            self.bomb_to_realese.x=self.x
+            self.bomb_to_realese.y=self.y
+            self.bomb_to_realese.explosion=Explosion(self.maze,self.world,self.bomb_to_realese)
+            self.bomb_realesed.append(self.bomb_to_realese) 
+            self.bombs.pop()
+            self.demand_release_bomb=False
+            
+            
+        
  
     def release_bomb(self):
         pass
@@ -59,7 +74,7 @@ class World:
         self.width = width
         self.height = height 
         self.maze = Maze(self)
-        self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size)
+        self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
         self.press_space=1
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
@@ -69,8 +84,10 @@ class World:
         if key == arcade.key.LEFT:
             self.bomberman.next_direction= DIR_LEFT
         if key == arcade.key.RIGHT:
-            self.bomberman.next_direction = DIR_RIGHT   
-        if key== arcade.key.ENTER:
+            self.bomberman.next_direction = DIR_RIGHT 
+        if key==arcade.key.E:
+            self.bomberman.demand_explose_bombs=True
+        if key== arcade.key.ENTER and self.bomberman.moving==False:
             self.bomberman.demand_release_bomb=True 
         if key== arcade.key.SPACE:          
             if ((self.press_space % 2 )==1):
@@ -105,13 +122,33 @@ class Maze:
     def has_wall_at(self, r, c):
         return self.map[r][c] == '#'
 class Bomb:
-    def __init__(self,world,bomberman,x,y):
+#    Remaining_bombs=0 
+    def __init__(self,maze,world,bomberman):
         self.world=world
+        self.maze=maze
         self.bomberman=bomberman
-        self.x=bomberman.x
-        self.y=bomberman.y
+        self.x=0
+        self.y=0
+        self.released=False
         self.exploded=False
+        self.explosion=None 
+#        self.total_number_bombs=total_number_bombs # we have a limited number of bombs to kill the ghost 
+#        Bomb.Remaining_bombs += 1 # to know how many objects that we have built so far         
     def is_exploded():
        pass   
-        
-        
+#    def update(self,delta):
+#        if self.bomberman.demand_release_bomb==False:
+#            self.x=self.bomberman.x
+#            self.y=self.bomberman.y
+#        else:
+#            self.released=True
+#            self.bomberman.demand_release_bomb= False 
+#            
+#
+class Explosion:
+     def __init__(self,maze,world,bomb):
+         self.x=bomb.x
+         self.y=bomb.y
+         self.maze=maze
+         self.world=world
+         

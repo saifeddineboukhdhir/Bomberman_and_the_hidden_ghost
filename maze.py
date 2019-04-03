@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import arcade
-
+import time 
 from models import World, Bomberman
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -51,12 +51,27 @@ class MazeWindow(arcade.Window):
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
         self.maze_drawer = MazeDrawer(self.world.maze)
+        self.bomb=None 
     def update(self, delta):
         self.world.update(delta) 
     def on_draw(self):
         arcade.start_render()
         self.maze_drawer.draw()
         self.bomberman_sprite.draw()
+        self.explosion_sprite=[]
+        for i in range( len(self.world.bomberman.bomb_realesed)):
+            self.bomb_sprite=ModelSprite('images/bomb.png',
+                                         model=self.world.bomberman.bomb_realesed[i])
+            self.explosion_sprite.append(ModelSprite('images/explosion.png',model=self.world.bomberman.bomb_realesed[i].explosion))
+            self.bomb_sprite.draw()
+        if self.world.bomberman.demand_explose_bombs:
+            for explosion_sprite in self.explosion_sprite:
+                explosion_sprite.draw()
+                self.world.bomberman.bomb_realesed=[]
+                self.world.bomberman.demand_explose_bombs=False
+#            arcade.schedule(self.explosion_sprite.draw, 0.2)
+#            arcade.run()
+#            self.world.bomberman.bomb_realesed=False
     def on_key_press(self, key, key_modifiers):
          self.world.on_key_press(key, key_modifiers)    
  
