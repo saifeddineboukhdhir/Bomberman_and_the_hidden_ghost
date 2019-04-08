@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import arcade
-import time 
 from models import World, Bomberman
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
