@@ -53,6 +53,7 @@ class MazeWindow(arcade.Window):
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
         self.maze_drawer = MazeDrawer(self.world.maze)
+        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
         
     def update(self, delta):
         self.world.update(delta) 
@@ -60,6 +61,7 @@ class MazeWindow(arcade.Window):
         arcade.start_render()
         self.maze_drawer.draw()
         self.bomberman_sprite.draw()
+        self.ghost_spirte.draw()
         self.explosion_sprite=[]
         self.explosion_liste=[]
         self.destroyed_ground_list=[]

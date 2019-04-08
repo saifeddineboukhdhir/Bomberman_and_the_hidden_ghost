@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import arcade.key
+from random import randint 
 DIR_STILL = 0
 DIR_UP = 1
 DIR_RIGHT = 2
@@ -78,6 +79,7 @@ class World:
         self.maze = Maze(self)
         self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
         self.press_space=1
+        self.ghost=Ghost(self.maze,self,self.block_size)
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
             self.bomberman.next_direction = DIR_UP
@@ -162,10 +164,11 @@ class Explosion:
      def get_col(self):
         return self.x // self.block_size
      def get_explosion_area(self):
-        for i in range(-1,2):
-            for j in range(-1,2):
-                if not self.maze.has_wall_at((self.y+j*self.block_size-self.block_size)//self.block_size,(self.x+i*self.block_size)//self.block_size):
-                    self.destroyed_ground_list.append(Destroyed_ground(self,self.x+i*self.block_size,self.y+j*self.block_size))
+        for i in range(-3,2):
+            for j in range(-3,2):
+                if (self.y+j*self.block_size-self.block_size)//self.block_size<self.maze.height and (self.x+i*self.block_size)//self.block_size<self.maze.width:  
+                    if not self.maze.has_wall_at((self.y+j*self.block_size-self.block_size)//self.block_size,(self.x+i*self.block_size)//self.block_size):
+                        self.destroyed_ground_list.append(Destroyed_ground(self,self.x+i*self.block_size,self.y+j*self.block_size))
 #                    self.destroyed_ground_list.append(Destroyed_ground(self,(self.get_col()+i)*self.block_size,(self.get_row()+j)*self.block_size)) 
         return(self.destroyed_ground_list)            
 class Destroyed_ground:
@@ -173,4 +176,15 @@ class Destroyed_ground:
         self.explosion=explosion
         self.x=x
         self.y=y
+class Ghost:
+    def __init__(self, maze, world,block_size):
+        self.block_size=block_size
+        self.maze=maze
+        self.world=world
+        self.y=randint(0,self.world.height-60)
+        self.x=randint(0,self.world.width-60)
+        while self.maze.has_wall_at((self.y - self.block_size) // self.block_size,self.x // self.block_size):
+            self.x=randint(0,self.world.width-60)
+            self.y=randint(0,self.world.height-60)
+        
         
