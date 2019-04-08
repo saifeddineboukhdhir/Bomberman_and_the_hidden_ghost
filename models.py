@@ -48,8 +48,10 @@ class Bomberman:
         if self.is_at_center():
             if self.check_walls(self.next_direction):
                 self.direction = self.next_direction
+                self.moving=True 
             else:
                 self.direction = DIR_STILL
+                self.moving=False
  
         self.move(self.direction)
         if self.demand_release_bomb and len(self.bombs)!=0:
@@ -119,6 +121,7 @@ class Maze:
                      '####################' ]
         self.height = len(self.map)
         self.width = len(self.map[0])
+        self.destroyed_ground=[]
     def has_wall_at(self, r, c):
         return self.map[r][c] == '#'
 class Bomb:
@@ -134,6 +137,7 @@ class Bomb:
         self.explosion=None 
 #        self.total_number_bombs=total_number_bombs # we have a limited number of bombs to kill the ghost 
 #        Bomb.Remaining_bombs += 1 # to know how many objects that we have built so far         
+               
     def is_exploded():
        pass   
 #    def update(self,delta):
@@ -149,6 +153,24 @@ class Explosion:
      def __init__(self,maze,world,bomb):
          self.x=bomb.x
          self.y=bomb.y
+         self.block_size=bomb.bomberman.block_size
          self.maze=maze
          self.world=world
-         
+         self.destroyed_ground_list=[]
+     def get_row(self):
+        return (self.y - self.block_size) // self.block_size
+     def get_col(self):
+        return self.x // self.block_size
+     def get_explosion_area(self):
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if not self.maze.has_wall_at((self.y+j*self.block_size-self.block_size)//self.block_size,(self.x+i*self.block_size)//self.block_size):
+                    self.destroyed_ground_list.append(Destroyed_ground(self,self.x+i*self.block_size,self.y+j*self.block_size))
+#                    self.destroyed_ground_list.append(Destroyed_ground(self,(self.get_col()+i)*self.block_size,(self.get_row()+j)*self.block_size)) 
+        return(self.destroyed_ground_list)            
+class Destroyed_ground:
+    def __init__(self,explosion,x,y):
+        self.explosion=explosion
+        self.x=x
+        self.y=y
+        
