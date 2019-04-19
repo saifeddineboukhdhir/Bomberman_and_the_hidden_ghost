@@ -55,17 +55,20 @@ class Bomberman:
                 self.moving=False
  
         self.move(self.direction)
+        if len(self.bombs)==0:
+            self.world.game_over=True
         if self.demand_release_bomb and len(self.bombs)!=0:
             self.bomb_to_realese=self.bombs[-1]
             self.bomb_to_realese.x=self.x
             self.bomb_to_realese.y=self.y
+#            self.bomb[-1].release(self.x,self.y)
             self.bomb_to_realese.explosion=Explosion(self.maze,self.world,self.bomb_to_realese)
             self.bomb_realesed.append(self.bomb_to_realese) 
             self.bombs.pop()
             self.demand_release_bomb=False
             
             
-        
+       
  
     def release_bomb(self):
         pass
@@ -80,6 +83,7 @@ class World:
         self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
         self.press_space=1
         self.ghost=Ghost(self.maze,self,self.block_size)
+        self.game_over=False
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
             self.bomberman.next_direction = DIR_UP
@@ -92,7 +96,7 @@ class World:
         if key==arcade.key.E:
             self.bomberman.demand_explose_bombs=True
         if key== arcade.key.ENTER and self.bomberman.moving==False:
-            self.bomberman.demand_release_bomb=True 
+            self.bomberman.   demand_release_bomb=True 
         if key== arcade.key.SPACE:          
             if ((self.press_space % 2 )==1):
                 self.bomberman.moving=False
@@ -153,8 +157,8 @@ class Bomb:
 #
 class Explosion:
      def __init__(self,maze,world,bomb):
-         self.x=bomb.x
-         self.y=bomb.y
+         self.x=bomb.bomberman.x
+         self.y=bomb.bomberman.y
          self.block_size=bomb.bomberman.block_size
          self.maze=maze
          self.world=world
@@ -164,12 +168,12 @@ class Explosion:
      def get_col(self):
         return self.x // self.block_size
      def get_explosion_area(self):
-        for i in range(-3,2):
-            for j in range(-3,2):
-                if (self.y+j*self.block_size-self.block_size)//self.block_size<self.maze.height and (self.x+i*self.block_size)//self.block_size<self.maze.width:  
-                    if not self.maze.has_wall_at((self.y+j*self.block_size-self.block_size)//self.block_size,(self.x+i*self.block_size)//self.block_size):
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if (self.y+(j-1)*self.block_size)//self.block_size<self.maze.height and (self.x+i*self.block_size)//self.block_size<self.maze.width:  
+                    if not self.maze.has_wall_at((self.y+(j-1)*self.block_size)//self.block_size,(self.x+i*self.block_size)//self.block_size):
                         self.destroyed_ground_list.append(Destroyed_ground(self,self.x+i*self.block_size,self.y+j*self.block_size))
-#                    self.destroyed_ground_list.append(Destroyed_ground(self,(self.get_col()+i)*self.block_size,(self.get_row()+j)*self.block_size)) 
+#                         self.destroyed_ground_list.append(Destroyed_ground(self,(self.x+i*self.block_size)+((self.x+i*self.block_size)%self.block_size),self.y+j*self.block_size+((self.x+(j-1)*self.block_size)%self.block_size)))
         return(self.destroyed_ground_list)            
 class Destroyed_ground:
     def __init__(self,explosion,x,y):

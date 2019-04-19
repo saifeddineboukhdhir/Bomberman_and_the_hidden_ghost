@@ -83,6 +83,10 @@ class MazeWindow(arcade.Window):
                 self.world.bomberman.bomb_realesed=[]
                 self.world.bomberman.demand_explose_bombs=False
                 self.draw_destroyed_ground=True 
+                for destroyed_ground in self.destroyed_ground_list:
+                    if (destroyed_ground.x,destroyed_ground.y)==(self.world.ghost.x,self.world.ghost.y):
+                        self.world.game_over=True 
+#                        print("hello")
     def on_key_press(self, key, key_modifiers):
          self.world.on_key_press(key, key_modifiers)    
  
