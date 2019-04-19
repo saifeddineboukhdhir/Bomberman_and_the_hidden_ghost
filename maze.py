@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import arcade
-from models import World, Bomberman
+from random import randint 
+from models import World, Bomberman,Explosion,Ghost 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 BLOCK_SIZE = 40
@@ -11,6 +12,14 @@ class MazeDrawer():
         self.height = self.maze.height
         self.destroyed_ground_spirte_all_bombs=[]
         self.wall_sprite = arcade.Sprite('images/wall.jpg')
+        self.destryed_ground_sprite=arcade.Sprite('images/ground.jpg')
+        self.bomb_sprite=arcade.Sprite("images/bomb.png")
+        self.explosion_sprite=None 
+        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')
+        r,c=randint(1,self.height-1),randint(1,self.width-1)
+        while self.maze.has_wall_at(r,c):
+            r,c=randint(1,self.height),randint(1,self.width)
+        self.ghost=ModelSprite("images/explosion.png",model= Explosion(r,c,BLOCK_SIZE))
     def draw_sprite(self, sprite, r, c):
         x, y = self.get_sprite_position(r, c)
         sprite.set_position(x, y)
@@ -25,10 +34,23 @@ class MazeDrawer():
             for c in range(self.width):
                 if self.maze.has_wall_at(r,c):
                     self.draw_sprite(self.wall_sprite, r, c)
-        if len(self.maze.destroyed_ground) !=0:
-            self.destroyed_ground_spirte_all_bombs=self.destroyed_ground_spirte_all_bombs+self.maze.destroyed_ground
-            for destroyed_ground_spirte in self.destroyed_ground_spirte_all_bombs:
-                destroyed_ground_spirte.draw()
+                if self.maze.map[r][c]=="+":
+                    self.draw_sprite(self.bomb_sprite,r,c)
+                if self.maze.map[r][c]=="*": 
+                    self.draw_sprite(self.destryed_ground_sprite,r,c)    
+        if self.maze.demand_explose_bombs:
+            self.maze.demand_explose_bombs=False
+            for r in range(self.height):
+                for c in range(self.width):
+                    if self.maze.map[r][c]=="+":
+                        self.explosion_sprite=ModelSprite("images/explosion.png",model= Explosion(r,c,BLOCK_SIZE))
+                        self.explosion_sprite.draw()
+                        for i in range(-2,1):
+                            for j in range(-2,1):
+                                 if c+j<self.maze.width and r+i<self.maze.height:
+                                     if not self.maze.has_wall_at(r+i,c+j):
+                                         self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
+                
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -53,7 +75,7 @@ class MazeWindow(arcade.Window):
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
         self.maze_drawer = MazeDrawer(self.world.maze)
-        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
+#        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
         
     def update(self, delta):
         self.world.update(delta) 
@@ -61,32 +83,11 @@ class MazeWindow(arcade.Window):
         arcade.start_render()
         self.maze_drawer.draw()
         self.bomberman_sprite.draw()
-        self.ghost_spirte.draw()
-        self.explosion_sprite=[]
-        self.explosion_liste=[]
-        self.destroyed_ground_list=[]
-        self.explosion_area_sprite=[]
-        self.draw_destroyed_ground=None
+#        self.ghost_spirte.draw()
+        arcade.draw_text(str(self.world.bomberman.remaining_bombs),
+                         self.width - 60, self.height - 30,
+                         arcade.color.RED, 20)
 
-        for i in range( len(self.world.bomberman.bomb_realesed)):
-            self.bomb_sprite=ModelSprite('images/bomb.png',
-                                         model=self.world.bomberman.bomb_realesed[i])
-            self.explosion_liste.append(self.world.bomberman.bomb_realesed[i].explosion)
-            self.explosion_sprite.append(ModelSprite('images/explosion.png',model=self.world.bomberman.bomb_realesed[i].explosion))
-            self.bomb_sprite.draw()
-        if self.world.bomberman.demand_explose_bombs:
-            for explosion_sprite in self.explosion_sprite:
-                explosion_sprite.draw()
-                self.destroyed_ground_list=self.explosion_liste[self.explosion_sprite.index(explosion_sprite)].get_explosion_area()
-                self.explosion_area_sprite=[ModelSprite('images/ground.jpg',model=destroyed_ground) for destroyed_ground in self.destroyed_ground_list]
-                self.world.maze.destroyed_ground=self.world.maze.destroyed_ground+self.explosion_area_sprite
-                self.world.bomberman.bomb_realesed=[]
-                self.world.bomberman.demand_explose_bombs=False
-                self.draw_destroyed_ground=True 
-                for destroyed_ground in self.destroyed_ground_list:
-                    if (destroyed_ground.x,destroyed_ground.y)==(self.world.ghost.x,self.world.ghost.y):
-                        self.world.game_over=True 
-#                        print("hello")
     def on_key_press(self, key, key_modifiers):
          self.world.on_key_press(key, key_modifiers)    
  
