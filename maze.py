@@ -15,18 +15,18 @@ class MazeDrawer():
         self.destryed_ground_sprite=arcade.Sprite('images/ground.jpg')
         self.bomb_sprite=arcade.Sprite("images/bomb.png")
         self.explosion_sprite=None 
-        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')
-        r,c=randint(1,self.height-1),randint(1,self.width-1)
-        while self.maze.has_wall_at(r,c):
-            r,c=randint(1,self.height),randint(1,self.width)
-        self.ghost=ModelSprite("images/explosion.png",model= Explosion(r,c,BLOCK_SIZE))
+        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')        
+#        r,c=randint(1,self.height-1),randint(1,self.width-1)
+#        while self.maze.has_wall_at(r,c):
+#            r,c=randint(1,self.height-1),randint(1,self.width-1)  
+#        self.maze.ghost_coordinate=(r,c)            
     def draw_sprite(self, sprite, r, c):
         x, y = self.get_sprite_position(r, c)
         sprite.set_position(x, y)
         sprite.draw()   
     def get_sprite_position(self, r, c):
-        x = c * BLOCK_SIZE + (BLOCK_SIZE // 2);
-        y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2));
+        x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
+        y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
         return x,y
  
     def draw(self):
@@ -37,7 +37,13 @@ class MazeDrawer():
                 if self.maze.map[r][c]=="+":
                     self.draw_sprite(self.bomb_sprite,r,c)
                 if self.maze.map[r][c]=="*": 
-                    self.draw_sprite(self.destryed_ground_sprite,r,c)    
+                    self.draw_sprite(self.destryed_ground_sprite,r,c)
+#                    if self.maze.no_bombs and self.maze.demand_explose_bombs==True:
+#                        self.maze.game_over=True
+                    if (r,c)==self.maze.ghost_coordinate:
+                        self.maze.player_wins=True
+                        
+                    
         if self.maze.demand_explose_bombs:
             self.maze.demand_explose_bombs=False
             for r in range(self.height):
@@ -47,10 +53,11 @@ class MazeDrawer():
                         self.explosion_sprite.draw()
                         for i in range(-2,1):
                             for j in range(-2,1):
-                                 if c+j<self.maze.width and r+i<self.maze.height:
+                                 if c+j<self.maze.width and r+i<self.maze.height and c+j>0 and r+i>0:
                                      if not self.maze.has_wall_at(r+i,c+j):
                                          self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
-                
+                                         if self.maze.no_bombs:
+                                             self.maze.game_over=True
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -77,6 +84,7 @@ class MazeWindow(arcade.Window):
         self.maze_drawer = MazeDrawer(self.world.maze)
 #        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
         
+        self.ghost=ModelSprite('images/ghost.png',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
     def update(self, delta):
         self.world.update(delta) 
     def on_draw(self):
@@ -84,8 +92,20 @@ class MazeWindow(arcade.Window):
         self.maze_drawer.draw()
         self.bomberman_sprite.draw()
 #        self.ghost_spirte.draw()
-        arcade.draw_text(str(self.world.bomberman.remaining_bombs),
-                         self.width - 60, self.height - 30,
+        if self.world.maze.game_over:
+            self.world.maze.player_wins=False
+            self.ghost.draw()
+            arcade.draw_text("You lost",
+                          100, self.height - 30,
+                         arcade.color.RED, 20)
+        if self.world.maze.player_wins:
+            self.world.maze.game_over=False
+            self.ghost.draw()
+            arcade.draw_text("You won",
+                          100, self.height - 30,
+                         arcade.color.RED, 20)
+        arcade.draw_text("Bombs "+str(self.world.bomberman.remaining_bombs),
+                         self.width - 110, self.height - 30,
                          arcade.color.RED, 20)
 
     def on_key_press(self, key, key_modifiers):

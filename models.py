@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import arcade.key
-
+from random import randint
 DIR_STILL = 0
 DIR_UP = 1
 DIR_RIGHT = 2
@@ -52,6 +52,8 @@ class Bomberman:
                 self.moving=False
  
         self.move(self.direction)
+        if self.remaining_bombs==0:
+            self.maze.no_bombs=True
         if self.demand_release_bomb and self.remaining_bombs!=0:
             bomb_row,bomb_col=self.get_row(),self.get_col()
             self.maze.map[bomb_row]=self.maze.map[bomb_row][:bomb_col]+"+"+self.maze.map[bomb_row][bomb_col+1:]
@@ -67,8 +69,8 @@ class World:
         self.maze = Maze(self)
         self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
         self.press_space=1
-#        self.ghost=Ghost(self.maze,self,self.block_size)
-        self.game_over=False
+
+
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.UP:
             self.bomberman.next_direction = DIR_UP
@@ -110,29 +112,32 @@ class Maze:
                      '#.###.###..###.###.#',
                      '#..................#',
                      '####################' ]
+                     
         self.height = len(self.map)
         self.width = len(self.map[0])
         self.destroyed_ground=[]
         self.demand_explose_bombs=False
+        self.game_over=False
+        self.player_wins=False
+        self.no_bombs=False
+        self.positions_ghost=[]
+        for i in range(self.height):
+            for j in range(self.width):
+                if not self.has_wall_at(i,j):
+                    self.positions_ghost.append((i,j))
+                
+        self.ghost_coordinate=self.positions_ghost[randint(0,len(self.positions_ghost)-1)]
+#        print(self.ghost_coordinate)
+#        print(self.positions_ghost)
     def has_wall_at(self, r, c):
         return self.map[r][c] == '#'
 
 class Explosion:
-    def __init__(self,r,c,block_size):
-        self.x=c*block_size
-        self.y=r*block_size+block_size
+    def __init__(self,r,c,BLOCK_SIZE):
+        self.x=c * BLOCK_SIZE + (BLOCK_SIZE // 2)
+        self.y=r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
 class Ghost:
-    def __init__(self,r,c,block_size):
-        self.x=c*block_size
-        self.y=r*block_size+block_size
-#    def __init__(self, maze, world,block_size):
-#        self.block_size=block_size
-#        self.maze=maze
-#        self.world=world
-#        self.y=randint(0,self.world.height-60)
-#        self.x=randint(0,self.world.width-60)
-#        while self.maze.has_wall_at((self.y - self.block_size) // self.block_size,self.x // self.block_size):
-#            self.x=randint(0,self.world.width-60)
-#            self.y=randint(0,self.world.height-60)
-        
+    def __init__(self,r,c,BLOCK_SIZE):
+        self.x=c * BLOCK_SIZE + (BLOCK_SIZE // 2)
+        self.y=r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
         
