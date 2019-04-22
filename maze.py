@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import arcade
-from random import randint 
 from models import World, Bomberman,Explosion,Ghost 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -15,7 +14,8 @@ class MazeDrawer():
         self.destryed_ground_sprite=arcade.Sprite('images/ground.jpg')
         self.bomb_sprite=arcade.Sprite("images/bomb.png")
         self.explosion_sprite=None 
-        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')        
+        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')
+        self.green_ground_sprite=arcade.Sprite('images/green_ground.jpg')        
 #        r,c=randint(1,self.height-1),randint(1,self.width-1)
 #        while self.maze.has_wall_at(r,c):
 #            r,c=randint(1,self.height-1),randint(1,self.width-1)  
@@ -28,7 +28,12 @@ class MazeDrawer():
         x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
         y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
         return x,y
- 
+    def ghost_is_near(self,r,c):
+        for i in range(-3,4 ):
+            for j in range(-3,4):
+                if self.maze.ghost_coordinate==(r+i,c+j):
+                    return(True)
+        return(False)             
     def draw(self):
         for r in range(self.height):
             for c in range(self.width):
@@ -36,6 +41,8 @@ class MazeDrawer():
                     self.draw_sprite(self.wall_sprite, r, c)
                 if self.maze.map[r][c]=="+":
                     self.draw_sprite(self.bomb_sprite,r,c)
+                if  self.maze.map[r][c]=="@":
+                    self.draw_sprite(self.green_ground_sprite,r,c)
                 if self.maze.map[r][c]=="*": 
                     self.draw_sprite(self.destryed_ground_sprite,r,c)
 #                    if self.maze.no_bombs and self.maze.demand_explose_bombs==True:
@@ -55,7 +62,10 @@ class MazeDrawer():
                             for j in range(-2,1):
                                  if c+j<self.maze.width and r+i<self.maze.height and c+j>0 and r+i>0:
                                      if not self.maze.has_wall_at(r+i,c+j):
-                                         self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
+                                         if self.ghost_is_near(r+i,c+j):
+                                             self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
+                                         else:
+                                             self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"@"+self.maze.map[r+i][c+j+1:] 
                                          if self.maze.no_bombs:
                                              self.maze.game_over=True
 
