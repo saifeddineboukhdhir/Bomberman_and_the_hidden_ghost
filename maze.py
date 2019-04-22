@@ -58,8 +58,8 @@ class MazeDrawer():
                     if self.maze.map[r][c]=="+":
                         self.explosion_sprite=ModelSprite("images/explosion.png",model= Explosion(r,c,BLOCK_SIZE))
                         self.explosion_sprite.draw()
-                        for i in range(-2,1):
-                            for j in range(-2,1):
+                        for i in range(-1,2):
+                            for j in range(-1,2):
                                  if c+j<self.maze.width and r+i<self.maze.height and c+j>0 and r+i>0:
                                      if not self.maze.has_wall_at(r+i,c+j):
                                          if self.ghost_is_near(r+i,c+j):
