@@ -15,7 +15,8 @@ class MazeDrawer():
         self.bomb_sprite=arcade.Sprite("images/bomb.png")
         self.explosion_sprite=None 
         self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')
-        self.green_ground_sprite=arcade.Sprite('images/green_ground.jpg')        
+        self.green_ground_sprite=arcade.Sprite('images/green_ground.jpg')  
+        
 #        r,c=randint(1,self.height-1),randint(1,self.width-1)
 #        while self.maze.has_wall_at(r,c):
 #            r,c=randint(1,self.height-1),randint(1,self.width-1)  
@@ -92,6 +93,8 @@ class MazeWindow(arcade.Window):
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
         self.maze_drawer = MazeDrawer(self.world.maze)
+        self.won=arcade.Sprite('images/won.png')
+        self.lost=arcade.Sprite('images/lost.png') 
 #        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
         
         self.ghost=ModelSprite('images/ghost.png',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
@@ -105,18 +108,22 @@ class MazeWindow(arcade.Window):
         if self.world.maze.game_over:
             self.world.maze.player_wins=False
             self.ghost.draw()
+            self.lost.set_position(400,300)
+            self.lost.draw()
             arcade.draw_text("You lost",
                           100, self.height - 30,
                          arcade.color.RED, 20)
         if self.world.maze.player_wins:
             self.world.maze.game_over=False
             self.ghost.draw()
+            self.won.set_position(400,300)
+            self.won.draw()
             arcade.draw_text("You won",
                           100, self.height - 30,
-                         arcade.color.RED, 20)
+                         arcade.color.GREEN, 20)
         arcade.draw_text("Bombs "+str(self.world.bomberman.remaining_bombs),
                          self.width - 110, self.height - 30,
-                         arcade.color.RED, 20)
+                         arcade.color.BLUE, 20)
 
     def on_key_press(self, key, key_modifiers):
          self.world.on_key_press(key, key_modifiers)    
