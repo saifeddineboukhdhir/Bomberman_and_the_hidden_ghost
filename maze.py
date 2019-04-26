@@ -50,7 +50,8 @@ class MazeDrawer():
 #                        self.maze.game_over=True
                     if (r,c)==self.maze.ghost_coordinate:
                         self.maze.player_wins=True
-                        
+                    elif self.maze.no_bombs and not self.maze.ghost_coordinate in [(r+k,c+r)for r in range(-1,2) for k in range(-1,2)]:
+                        self.maze.game_over=True     
                     
         if self.maze.demand_explose_bombs:
             self.maze.demand_explose_bombs=False
@@ -67,7 +68,7 @@ class MazeDrawer():
                                              self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
                                          else:
                                              self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"@"+self.maze.map[r+i][c+j+1:] 
-                                         if self.maze.no_bombs:
+                                         if self.maze.no_bombs and  not self.maze.ghost_coordinate in [(r+k,c+r)for r in range(-1,2) for k in range(-1,2)]:
                                              self.maze.game_over=True
 
 class ModelSprite(arcade.Sprite):
@@ -97,7 +98,7 @@ class MazeWindow(arcade.Window):
         self.lost=arcade.Sprite('images/lost.png') 
 #        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
         
-        self.ghost=ModelSprite('images/ghost.png',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
+        self.ghost=ModelSprite('images/ghost.gif',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
     def update(self, delta):
         self.world.update(delta) 
     def on_draw(self):
@@ -127,12 +128,18 @@ class MazeWindow(arcade.Window):
 
     def on_key_press(self, key, key_modifiers):
          self.world.on_key_press(key, key_modifiers)    
- 
+    def restart(self):
+        return((self.world.maze.player_wins or self.world.maze.game_over)and self.world.restart)
  
 def main():
     window = MazeWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
+#    restart=window.restart()
     arcade.set_window(window)
     arcade.run()
- 
+#    while restart:
+#        window = MazeWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
+#        restart=window.restart()
+#        arcade.set_window(window)
+#        arcade.run()
 if __name__ == '__main__':
     main()

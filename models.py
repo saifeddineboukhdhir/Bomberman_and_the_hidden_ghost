@@ -52,13 +52,15 @@ class Bomberman:
                 self.moving=False
  
         self.move(self.direction)
-        if self.remaining_bombs==0:
-            self.maze.no_bombs=True
+#        if self.remaining_bombs==0:
+#            self.maze.no_bombs=True
         if self.demand_release_bomb and self.remaining_bombs!=0:
             bomb_row,bomb_col=self.get_row(),self.get_col()
             self.maze.map[bomb_row]=self.maze.map[bomb_row][:bomb_col]+"+"+self.maze.map[bomb_row][bomb_col+1:]
             self.demand_release_bomb=False
             self.remaining_bombs-=1
+            if self.remaining_bombs==0:
+                self.maze.no_bombs=True
 
  
 class World:
@@ -69,9 +71,12 @@ class World:
         self.maze = Maze(self)
         self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
         self.press_space=1
+        self.restart=False
 
 
     def on_key_press(self, key, key_modifiers):
+        if key == arcade.key.S:
+            self.restart=True 
         if key == arcade.key.UP:
             self.bomberman.next_direction = DIR_UP
         if key == arcade.key.DOWN:
