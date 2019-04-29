@@ -41,7 +41,9 @@ class Bomberman:
         if self.moving:
             self.x += MOVEMENT_SPEED * DIR_OFFSETS[direction][0]
             self.y += MOVEMENT_SPEED * DIR_OFFSETS[direction][1]
- 
+    def stop_moving(self):
+        global MOVEMENT_SPEED
+        MOVEMENT_SPEED=0
     def update(self, delta):
         if self.is_at_center():
             if self.check_walls(self.next_direction):
@@ -52,15 +54,16 @@ class Bomberman:
                 self.moving=False
  
         self.move(self.direction)
-#        if self.remaining_bombs==0:
-#            self.maze.no_bombs=True
-        if self.demand_release_bomb and self.remaining_bombs!=0:
+        if self.remaining_bombs==0 and self.maze.demand_explose_bombs==True:
+            self.maze.no_bombs=True
+        if self.demand_release_bomb and self.remaining_bombs>0:
+            self.remaining_bombs-=1
             bomb_row,bomb_col=self.get_row(),self.get_col()
             self.maze.map[bomb_row]=self.maze.map[bomb_row][:bomb_col]+"+"+self.maze.map[bomb_row][bomb_col+1:]
             self.demand_release_bomb=False
-            self.remaining_bombs-=1
-            if self.remaining_bombs==0:
-                self.maze.no_bombs=True
+#            self.remaining_bombs-=1
+#            if self.remaining_bombs==0:
+#                self.maze.no_bombs=True
 
  
 class World:
@@ -132,11 +135,18 @@ class Maze:
                     self.positions_ghost.append((i,j))
                 
         self.ghost_coordinate=self.positions_ghost[randint(0,len(self.positions_ghost)-1)]
+#        self.ghost_coordinate=(1,1)          
 #        print(self.ghost_coordinate)
 #        print(self.positions_ghost)
     def has_wall_at(self, r, c):
         return self.map[r][c] == '#'
-
+    def get_destroyed_grounds(self):
+        grounds=[]
+        for r in range(self.height):
+            for c in range(self.width):
+                if self.map[r][c]=='*':
+                    grounds.append((r,c))
+        return(grounds)            
 class Explosion:
     def __init__(self,r,c,BLOCK_SIZE):
         self.x=c * BLOCK_SIZE + (BLOCK_SIZE // 2)

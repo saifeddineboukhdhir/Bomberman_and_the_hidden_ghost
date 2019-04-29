@@ -11,16 +11,12 @@ class MazeDrawer():
         self.height = self.maze.height
         self.destroyed_ground_spirte_all_bombs=[]
         self.wall_sprite = arcade.Sprite('images/wall.jpg')
-        self.destryed_ground_sprite=arcade.Sprite('images/ground.jpg')
         self.bomb_sprite=arcade.Sprite("images/bomb.png")
         self.explosion_sprite=None 
-        self.destroyed_ground_sprite=arcade.Sprite('images/ground.jpg')
-        self.green_ground_sprite=arcade.Sprite('images/green_ground.jpg')  
-        
-#        r,c=randint(1,self.height-1),randint(1,self.width-1)
-#        while self.maze.has_wall_at(r,c):
-#            r,c=randint(1,self.height-1),randint(1,self.width-1)  
-#        self.maze.ghost_coordinate=(r,c)            
+        self.destroyed_ground_sprite=arcade.Sprite('images/ground.png')
+        self.green_ground_sprite=arcade.Sprite('images/green_ground.jpg')
+        self.flame_sprite=arcade.Sprite("images/flame.png")
+                   
     def draw_sprite(self, sprite, r, c):
         x, y = self.get_sprite_position(r, c)
         sprite.set_position(x, y)
@@ -44,15 +40,15 @@ class MazeDrawer():
                     self.draw_sprite(self.bomb_sprite,r,c)
                 if  self.maze.map[r][c]=="@":
                     self.draw_sprite(self.green_ground_sprite,r,c)
-                if self.maze.map[r][c]=="*": 
-                    self.draw_sprite(self.destryed_ground_sprite,r,c)
-#                    if self.maze.no_bombs and self.maze.demand_explose_bombs==True:
-#                        self.maze.game_over=True
+                  
+                if self.maze.map[r][c]=="*":
                     if (r,c)==self.maze.ghost_coordinate:
                         self.maze.player_wins=True
-                    elif self.maze.no_bombs and not self.maze.ghost_coordinate in [(r+k,c+r)for r in range(-1,2) for k in range(-1,2)]:
-                        self.maze.game_over=True     
-                    
+                        self.draw_sprite(self.flame_sprite,r,c)
+#                   
+                    else:    
+                        self.draw_sprite(self.destroyed_ground_sprite,r,c)
+#                   
         if self.maze.demand_explose_bombs:
             self.maze.demand_explose_bombs=False
             for r in range(self.height):
@@ -68,8 +64,7 @@ class MazeDrawer():
                                              self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"*"+self.maze.map[r+i][c+j+1:]
                                          else:
                                              self.maze.map[r+i]=self.maze.map[r+i][:c+j]+"@"+self.maze.map[r+i][c+j+1:] 
-                                         if self.maze.no_bombs and  not self.maze.ghost_coordinate in [(r+k,c+r)for r in range(-1,2) for k in range(-1,2)]:
-                                             self.maze.game_over=True
+#                                        
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -96,7 +91,7 @@ class MazeWindow(arcade.Window):
         self.maze_drawer = MazeDrawer(self.world.maze)
         self.won=arcade.Sprite('images/won.png')
         self.lost=arcade.Sprite('images/lost.png') 
-#        self.ghost_spirte=ModelSprite('images/ghost.png',model=self.world.ghost)
+
         
         self.ghost=ModelSprite('images/ghost.gif',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
     def update(self, delta):
@@ -105,24 +100,24 @@ class MazeWindow(arcade.Window):
         arcade.start_render()
         self.maze_drawer.draw()
         self.bomberman_sprite.draw()
-#        self.ghost_spirte.draw()
-        if self.world.maze.game_over:
-            self.world.maze.player_wins=False
+        if self.world.maze.no_bombs and ((self.world.maze.ghost_coordinate in self.world.maze.get_destroyed_grounds() )== False)  :
+
             self.ghost.draw()
             self.lost.set_position(400,300)
             self.lost.draw()
             arcade.draw_text("You lost",
                           100, self.height - 30,
                          arcade.color.RED, 20)
-        if self.world.maze.player_wins:
-            self.world.maze.game_over=False
+            self.world.bomberman.stop_moving()
+        elif self.world.maze.player_wins:
             self.ghost.draw()
+            self.world.bomberman.stop_moving()
             self.won.set_position(400,300)
             self.won.draw()
             arcade.draw_text("You won",
                           100, self.height - 30,
                          arcade.color.GREEN, 20)
-        arcade.draw_text("Bombs "+str(self.world.bomberman.remaining_bombs),
+        arcade.draw_text("Bombs "+str(max(self.world.bomberman.remaining_bombs,0)),
                          self.width - 110, self.height - 30,
                          arcade.color.BLUE, 20)
 
