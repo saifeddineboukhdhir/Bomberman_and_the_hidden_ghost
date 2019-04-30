@@ -132,7 +132,7 @@ class Maze:
         self.positions_ghost=[]
         for i in range(self.height):
             for j in range(self.width):
-                if not self.has_wall_at(i,j):
+                if (not self.has_wall_at(i,j)):
                     self.positions_ghost.append((i,j))
                 
         self.ghost_coordinate=self.positions_ghost[randint(0,len(self.positions_ghost)-1)]

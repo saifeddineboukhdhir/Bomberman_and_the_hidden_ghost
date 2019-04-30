@@ -84,7 +84,7 @@ class MazeWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height)
  
-        arcade.set_background_color(arcade.color.AERO_BLUE)
+        arcade.set_background_color(arcade.color.PALE_GOLDENROD)
         self.world = World(SCREEN_WIDTH, SCREEN_HEIGHT, BLOCK_SIZE)
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
@@ -116,7 +116,7 @@ class MazeWindow(arcade.Window):
             self.won.draw()
             arcade.draw_text("You won",
                           100, self.height - 30,
-                         arcade.color.GREEN, 20)
+                         arcade.color.LIME_GREEN, 20)
         arcade.draw_text("Bombs "+str(max(self.world.bomberman.remaining_bombs,0)),
                          self.width - 110, self.height - 30,
                          arcade.color.BLUE, 20)
