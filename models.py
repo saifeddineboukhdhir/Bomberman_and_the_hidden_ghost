@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import arcade.key
-from random import randint
+from random import randint, shuffle
 DIR_STILL = 0
 DIR_UP = 1
 DIR_RIGHT = 2
@@ -72,7 +72,7 @@ class World:
         self.width = width
         self.height = height 
         self.maze = Maze(self)
-        self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,5)
+        self.bomberman = Bomberman(self, 60, 100,self.maze, self.block_size,10)
         self.press_space=1
         self.restart=False
 
@@ -124,6 +124,7 @@ class Maze:
         self.height = len(self.map)
         self.width = len(self.map[0])
         self.destroyed_ground=[]
+        self.shuffle_map()
         self.demand_explose_bombs=False
         self.game_over=False
         self.player_wins=False
@@ -138,6 +139,14 @@ class Maze:
 #        self.ghost_coordinate=(1,1)          
 #        print(self.ghost_coordinate)
 #        print(self.positions_ghost)
+    def shuffle_map(self):
+        for i in range(1,self.height-1):
+            liste_to_shuffle=[a for a in self.map[i][1:self.width-1]]
+            shuffle(liste_to_shuffle)
+            map_i=str()
+            for element in liste_to_shuffle:
+                map_i=map_i+element                
+            self.map[i]='#'+map_i+'#'
     def has_wall_at(self, r, c):
         return self.map[r][c] == '#'
     def get_destroyed_grounds(self):
