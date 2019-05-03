@@ -136,6 +136,9 @@ class Maze:
                     self.positions_ghost.append((i,j))
                 
         self.ghost_coordinate=self.positions_ghost[randint(0,len(self.positions_ghost)-1)]
+        while self.map[self.ghost_coordinate[0]+1][self.ghost_coordinate[1]]=="#"and  self.map[self.ghost_coordinate[0]-1][self.ghost_coordinate[1]]=="#" and  self.map[self.ghost_coordinate[0]][self.ghost_coordinate[1]+1]=="#" and self.map[self.ghost_coordinate[0]][self.ghost_coordinate[1]+1]=="#":
+            self.ghost_coordinate=self.positions_ghost[randint(0,len(self.positions_ghost)-1)]
+        
 #        self.ghost_coordinate=(1,1)          
 #        print(self.ghost_coordinate)
 #        print(self.positions_ghost)
