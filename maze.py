@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import arcade
+from time import sleep 
 from models import World, Bomberman,Explosion,Ghost 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -85,56 +86,92 @@ class MazeWindow(arcade.Window):
         super().__init__(width, height)
  
         arcade.set_background_color(arcade.color.PALE_GOLDENROD)
+#        self.world = World(SCREEN_WIDTH, SCREEN_HEIGHT, BLOCK_SIZE)
+#        self.bomberman_sprite = ModelSprite('images/bomberman.png',
+#                                         model=self.world.bomberman)
+#        self.maze_drawer = MazeDrawer(self.world.maze)
+#        self.won=arcade.Sprite('images/won.png')
+#        self.lost=arcade.Sprite('images/lost.png') 
+        self.world = None
+        self.bomberman_sprite =None
+        self.maze_drawer = None
+        self.won=None
+        self.lost=None
+        self.status=None
+        self.just_started=True 
+        self.restart=arcade.Sprite('images/restart.png')
+      
+        
+        
+    def setup(self):
         self.world = World(SCREEN_WIDTH, SCREEN_HEIGHT, BLOCK_SIZE)
         self.bomberman_sprite = ModelSprite('images/bomberman.png',
                                          model=self.world.bomberman)
         self.maze_drawer = MazeDrawer(self.world.maze)
         self.won=arcade.Sprite('images/won.png')
         self.lost=arcade.Sprite('images/lost.png') 
-
-        
+        self.status='playing'
         self.ghost=ModelSprite('images/ghost.gif',model= Ghost(self.world.maze.ghost_coordinate[0],self.world.maze.ghost_coordinate[1],BLOCK_SIZE))
     def update(self, delta):
-        self.world.update(delta) 
+        if self.status=='playing':
+            self.world.update(delta) 
     def on_draw(self):
         arcade.start_render()
-        self.maze_drawer.draw()
-        self.bomberman_sprite.draw()
+        if self.just_started:
+                self.setup()
+                self.just_started=False
+        if self.status=='playing':
+            
+            self.maze_drawer.draw()
+            self.bomberman_sprite.draw() 
         if self.world.maze.no_bombs and ((self.world.maze.ghost_coordinate in self.world.maze.get_destroyed_grounds() )== False)  :
 
             self.ghost.draw()
             self.lost.set_position(400,300)
             self.lost.draw()
+            self.restart.set_position(750,100)
+            self.restart.draw()
             arcade.draw_text("You lost",
-                          100, self.height - 30,
+                          100, self.height - 80,
                          arcade.color.RED, 20)
-            self.world.bomberman.stop_moving()
+#            self.world.bomberman.stop_moving()
+            if self.status=='playing':
+                sleep(3)
+                
+            self.status="lost"
+            
         elif self.world.maze.player_wins:
+            self.restart.set_position(750,100)
+            self.restart.draw()
             self.ghost.draw()
-            self.world.bomberman.stop_moving()
+#            self.world.bomberman.stop_moving()
             self.won.set_position(400,300)
             self.won.draw()
+            
             arcade.draw_text("You won",
-                          100, self.height - 30,
+                          100, self.height - 80,
                          arcade.color.LIME_GREEN, 20)
+           
+            if self.status=='playing':
+                sleep(3)
+            self.status="won"    
         arcade.draw_text("Bombs "+str(max(self.world.bomberman.remaining_bombs,0)),
                          self.width - 110, self.height - 30,
                          arcade.color.BLUE, 20)
 
     def on_key_press(self, key, key_modifiers):
-         self.world.on_key_press(key, key_modifiers)    
-    def restart(self):
-        return((self.world.maze.player_wins or self.world.maze.game_over)and self.world.restart)
+         if self.status=='playing':
+             self.world.on_key_press(key, key_modifiers)  
+    def on_mouse_press(self, x, y, button, modifiers):
+        if self.status=="won" or self.status=="lost" :
+            self.setup()
+            self.just_started=True
+
  
 def main():
     window = MazeWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
-#    restart=window.restart()
     arcade.set_window(window)
     arcade.run()
-#    while restart:
-#        window = MazeWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
-#        restart=window.restart()
-#        arcade.set_window(window)
-#        arcade.run()
+
 if __name__ == '__main__':
     main()
