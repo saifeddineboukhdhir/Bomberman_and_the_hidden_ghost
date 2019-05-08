@@ -11,4 +11,4 @@ If the player has used all the bombs and the ghost has not been killed yet, the 
 * To move in the maze: use ◄ ► ▲ ▼
 * To stop : use Space bar ■ 
 * To release a bomb : use Enter  ↲
-* To explode a bomb / many bombs: use "E"   
+* To make a bomb/ many bomb go off: use "E"   
