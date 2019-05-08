@@ -1,4 +1,4 @@
-# Bomberman_and_the_hidden_ghost
+# Bomberman and the Hidden Ghost ©
 * Thank you for playing my game !
 * This ReadMe contains useful information
 # Requirements: 
