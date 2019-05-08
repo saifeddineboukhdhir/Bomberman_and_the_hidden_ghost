@@ -14,3 +14,5 @@ If the player has used all the bombs and the ghost has not been killed yet, the 
 * To release a bomb : use Enter  ↲
 * To make a bomb/ many bomb go off: use "E" 
 * After wining or losing, to restart the game: click on the restart button ♻
+# got help fom !   
+* https://theory.cpe.ku.ac.th/wiki/index.php/Prg2/arcade5_maze?fbclid=IwAR2jd0uRkGnoi0faEPKGAUO9w8WkCMvU6q6ZWPDhJHSGPL5rKKB9d2EODvo
